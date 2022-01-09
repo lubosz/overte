@@ -134,7 +134,6 @@ Font::Pointer Font::load(const QString& family) {
 
 void Font::handleFontNetworkReply() {
     auto requestReply = qobject_cast<QNetworkReply*>(sender());
-    Q_ASSERT(requestReply != nullptr);
 
     if (requestReply->error() == QNetworkReply::NoError) {
         setLoaded(true);
@@ -479,7 +478,7 @@ void Font::drawString(gpu::Batch& batch, Font::DrawInfo& drawInfo, const QString
         gpuDrawParams.effectThickness = drawInfo.params.effectThickness;
         gpuDrawParams.effect = drawInfo.params.effect;
         if (!drawInfo.paramsBuffer) {
-            drawInfo.paramsBuffer = std::make_shared<gpu::Buffer>(gpu::Buffer::UniformBuffer, sizeof(GpuDrawParams), nullptr);
+            drawInfo.paramsBuffer = std::make_shared<gpu::Buffer>(gpu::Buffer::UniformBuffer, sizeof(DrawParams), nullptr);
         }
         drawInfo.paramsBuffer->setSubData(0, sizeof(DrawParams), (const gpu::Byte*)&gpuDrawParams);
     }
