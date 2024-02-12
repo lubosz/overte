@@ -306,8 +306,8 @@ void handleOpenVrEvents() {
 
         #if DEV_BUILD
             //qDebug() << "OpenVR: Event " << activeHmd->GetEventTypeNameFromEnum((vr::EVREventType)event.eventType) << "(" << event.eventType << ")";
-            // FIXME: Reinstate the line above and remove the following lines once the problem with excessive occurrences of 
-            // VREvent_ActionBindingReloaded events is fixed in SteamVR for Linux. 
+            // FIXME: Reinstate the line above and remove the following lines once the problem with excessive occurrences of
+            // VREvent_ActionBindingReloaded events is fixed in SteamVR for Linux.
             // https://github.com/ValveSoftware/SteamVR-for-Linux/issues/307
             #ifdef Q_OS_LINUX
                 if (event.eventType != vr::VREvent_ActionBindingReloaded) {

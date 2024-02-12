@@ -27,7 +27,7 @@ static const size_t COMPOSITING_BUFFER_SIZE = 3;
 struct CompositeInfo {
     using Queue = std::queue<CompositeInfo>;
     using Array = std::array<CompositeInfo, COMPOSITING_BUFFER_SIZE>;
-    
+
     gpu::TexturePointer texture;
     uint32_t textureID { 0 };
     glm::mat4 pose;

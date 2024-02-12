@@ -93,10 +93,10 @@ out vec4 FragColor;
 
 void main() {
     vec2 uv = vTexCoord;
-    
+
     mat4 eyeInverseProjection;
     mat4 eyeProjection;
-    
+
     float xoffset = 1.0;
     vec2 uvmin = vec2(0.0);
     vec2 uvmax = vec2(1.0);
@@ -117,12 +117,12 @@ void main() {
     vec4 ndcSpace = vec4(vPosition, 1.0);
     ndcSpace.x *= 2.0;
     ndcSpace.x += xoffset;
-    
+
     // Convert from NDC to eyespace
     vec4 eyeSpace = eyeInverseProjection * ndcSpace;
     eyeSpace /= eyeSpace.w;
 
-    // Convert to a noramlized ray 
+    // Convert to a noramlized ray
     vec3 ray = eyeSpace.xyz;
     ray = normalize(ray);
 
@@ -140,7 +140,7 @@ void main() {
     ndcSpace /= ndcSpace.w;
     ndcSpace.x -= xoffset;
     ndcSpace.x /= 2.0;
-    
+
     // Calculate the new UV coordinates
     uv = (ndcSpace.xy / 2.0) + 0.5;
     if (any(greaterThan(uv, uvmax)) || any(lessThan(uv, uvmin))) {
