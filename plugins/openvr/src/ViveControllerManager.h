@@ -9,8 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-#ifndef hifi__ViveControllerManager
-#define hifi__ViveControllerManager
+#pragma once
 
 #include <QObject>
 #include <unordered_set>
@@ -291,5 +290,3 @@ private:
 
     static const char* NAME;
 };
-
-#endif // hifi__ViveControllerManager
