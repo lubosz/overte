@@ -1,5 +1,5 @@
 //
-//  ViveControllerManager.h
+//  OpenVrInputPlugin.h
 //
 //  Created by Sam Gondelman on 6/29/15.
 //  Copyright 2013 High Fidelity, Inc.
@@ -53,7 +53,7 @@ public:
 #endif
 
 
-class ViveControllerManager : public InputPlugin {
+class OpenVrInputPlugin : public InputPlugin {
     Q_OBJECT
 public:
     // Plugin functions
@@ -247,7 +247,7 @@ private:
         std::map<uint32_t, uint64_t> _simDataRunningOkTimestampMap;
 
         QString configToString(Config config);
-        friend class ViveControllerManager;
+        friend class OpenVrInputPlugin;
     };
 
     void renderHand(const controller::Pose& pose, gpu::Batch& batch, int sign);

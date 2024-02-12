@@ -15,7 +15,7 @@
 #include <plugins/RuntimePlugin.h>
 
 #include "OpenVrDisplayPlugin.h"
-#include "ViveControllerManager.h"
+#include "OpenVrInputPlugin.h"
 
 class OpenVrProvider : public QObject, public DisplayProvider, InputProvider
 {
@@ -43,7 +43,7 @@ public:
     virtual InputPluginList getInputPlugins() override {
         static std::once_flag once;
         std::call_once(once, [&] {
-            InputPluginPointer plugin(std::make_shared<ViveControllerManager>());
+            InputPluginPointer plugin(std::make_shared<OpenVrInputPlugin>());
             if (plugin->isSupported()) {
                 _inputPlugins.push_back(plugin);
             }

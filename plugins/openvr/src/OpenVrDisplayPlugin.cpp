@@ -508,7 +508,7 @@ void OpenVrDisplayPlugin::internalDeactivate() {
     _openVrDisplayActive = false;
     if (_system) {
         // TODO: Invalidate poses. It's fine if someone else sets these shared values, but we're about to stop updating them, and
-        // we don't want ViveControllerManager to consider old values to be valid.
+        // we don't want OpenVrInputPlugin to consider old values to be valid.
         _container->makeRenderingContextCurrent();
         releaseOpenVrSystem();
         _system = nullptr;
