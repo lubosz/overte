@@ -349,6 +349,24 @@ void OpenXrDisplayPlugin::compositeLayers() {
 
     _context->beginFrame();
 
+    std::vector<XrView> eye_views(_viewCount);
+    for (uint32_t i = 0; i < _viewCount; i++) {
+        eye_views[i].type = XR_TYPE_VIEW;
+    }
+
+    XrViewLocateInfo eyeViewLocateInfo = {
+        .type = XR_TYPE_VIEW_LOCATE_INFO,
+        .viewConfigurationType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO,
+        .displayTime = _lastFrameState.predictedDisplayTime,
+        .space = _context->_viewSpace,
+    };
+
+    XrViewState eyeViewState = { .type = XR_TYPE_VIEW_STATE };
+
+    result = xrLocateViews(_context->_session, &eyeViewLocateInfo, &eyeViewState, _viewCount, &_viewCount, eye_views.data());
+    if (!xrCheck(_context->_instance, result, "Could not locate views"))
+        return;
+
     _lastViewState = { .type = XR_TYPE_VIEW_STATE };
 
     XrViewLocateInfo viewLocateInfo = {
@@ -378,9 +396,9 @@ void OpenXrDisplayPlugin::compositeLayers() {
         // qCDebug(xr_display_cat, "Head position: %s", glm::to_string(headPosition).c_str());
 
         for (uint32_t i = 0; i < 2; i++) {
-            vec3 eyePosition = xrVecToGlm(_views[i].pose.position);
-            vec3 eyeToHeadVec = headPosition - eyePosition;
-            mat4 eyeToHeadMat = glm::translate(eyeToHeadVec);
+            vec3 eyePosition = xrVecToGlm(eye_views[i].pose.position);
+            quat eyeOrientation = xrQuatToGlm(eye_views[i].pose.orientation);
+            mat4 eyeToHeadMat = controller::Pose(eyePosition, eyeOrientation).getMatrix();
             _eyeOffsets[i] = eyeToHeadMat;
             // qCDebug(xr_display_cat, "Eye %d position: %s", i, glm::to_string(eyePosition).c_str());
         }
