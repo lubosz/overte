@@ -405,6 +405,18 @@ void OpenXrDisplayPlugin::compositeLayers() {
     }
 
     if (_lastFrameState.shouldRender) {
+        _compositeFramebuffer->setRenderBuffer(0, _compositeSwapChain[_swapChainIndices[0]]);
+        HmdDisplayPlugin::compositeLayers();
+    }
+}
+
+void OpenXrDisplayPlugin::hmdPresent() {
+    if (!_context->_shouldRunFrameCycle) {
+        return;
+    }
+
+    if (_lastFrameState.shouldRender) {
+        // TODO: Use multiview swapchain
         for (uint32_t i = 0; i < 2; i++) {
             XrSwapchainImageAcquireInfo acquireInfo = { .type = XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO };
 
@@ -421,18 +433,6 @@ void OpenXrDisplayPlugin::compositeLayers() {
             _projectionLayerViews[i].fov = _views[i].fov;
         }
 
-        _compositeFramebuffer->setRenderBuffer(0, _compositeSwapChain[_swapChainIndices[0]]);
-
-        HmdDisplayPlugin::compositeLayers();
-    }
-}
-
-void OpenXrDisplayPlugin::hmdPresent() {
-    if (!_context->_shouldRunFrameCycle) {
-        return;
-    }
-
-    if (_lastFrameState.shouldRender) {
         GLuint glTexId = getGLBackend()->getTextureID(_compositeFramebuffer->getRenderBuffer(0));
 
         glCopyImageSubData(glTexId, GL_TEXTURE_2D, 0, 0, 0, 0, _images[0][_swapChainIndices[0]].image, GL_TEXTURE_2D, 0, 0, 0,
@@ -440,8 +440,6 @@ void OpenXrDisplayPlugin::hmdPresent() {
 
         glCopyImageSubData(glTexId, GL_TEXTURE_2D, 0, _renderTargetSize.x / 2, 0, 0, _images[1][_swapChainIndices[1]].image,
                            GL_TEXTURE_2D, 0, 0, 0, 0, _renderTargetSize.x / 2, _renderTargetSize.y, 1);
-
-        _presentRate.increment();
 
         for (uint32_t i = 0; i < 2; i++) {
             XrSwapchainImageReleaseInfo releaseInfo = { .type = XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
@@ -453,6 +451,8 @@ void OpenXrDisplayPlugin::hmdPresent() {
         }
     }
     endFrame();
+
+    _presentRate.increment();
 }
 
 bool OpenXrDisplayPlugin::endFrame() {
