@@ -443,22 +443,20 @@ void OpenXrInputPlugin::InputDevice::update(float deltaTime, const controller::I
     XrResult result = xrSyncActions(session, &syncInfo);
     xrCheck(instance, result, "failed to sync actions!");
 
+    glm::mat4 sensorToAvatar = glm::inverse(inputCalibrationData.avatarMat) * inputCalibrationData.sensorToWorldMat;
+
     for (int i = 0; i < HAND_COUNT; i++) {
         XrSpaceLocation handLocation = _actions.at("/input/grip/pose")->getPose(i);
         bool locationValid = (handLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0;
-
         if (locationValid) {
-            // TODO: Fix hands pose
             vec3 translation = xrVecToGlm(handLocation.pose.position);
             quat rotation = xrQuatToGlm(handLocation.pose.orientation);
             auto pose = controller::Pose(translation, rotation);
-            glm::mat4 controllerToAvatar = glm::inverse(inputCalibrationData.avatarMat) * inputCalibrationData.sensorToWorldMat;
-            _poseStateMap[i == 0 ? controller::LEFT_HAND : controller::RIGHT_HAND] = pose.transform(controllerToAvatar);
+            _poseStateMap[i == 0 ? controller::LEFT_HAND : controller::RIGHT_HAND] = pose.transform(sensorToAvatar);
         }
     }
 
-    glm::mat4 sensorToAvatar = glm::inverse(inputCalibrationData.avatarMat) * inputCalibrationData.sensorToWorldMat;
-    glm::mat4 defaultHeadOffset = createMatFromQuatAndPos(Quaternions::IDENTITY, -DEFAULT_AVATAR_HEAD_TO_MIDDLE_EYE_OFFSET);
+    glm::mat4 defaultHeadOffset = createMatFromQuatAndPos(-DEFAULT_AVATAR_HEAD_ROT, -DEFAULT_AVATAR_HEAD_TO_MIDDLE_EYE_OFFSET);
     _poseStateMap[controller::HEAD] = _context->_lastHeadPose.postTransform(defaultHeadOffset).transform(sensorToAvatar);
 
     std::map<controller::StandardAxisChannel, std::string> axesToUpdate[2] = {
