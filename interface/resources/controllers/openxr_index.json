@@ -27,6 +27,8 @@
       { "from": "Index.LX", "to": "Standard.LX" },
       { "from": "Index.RY", "to": "Standard.RY" },
       { "from": "Index.RX", "to": "Standard.RX" },
+      { "from": "Index.LS", "to": "Standard.LS" },
+      { "from": "Index.RS", "to": "Standard.RS" },
       { "from": "Index.LSTouch", "to": "Standard.LSTouch" },
       { "from": "Index.RSTouch", "to": "Standard.RSTouch" },
 
