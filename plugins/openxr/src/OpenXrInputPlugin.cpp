@@ -498,10 +498,10 @@ void OpenXrInputPlugin::InputDevice::update(float deltaTime, const controller::I
         for (const auto& channelAndPath : axesToUpdate[i]) {
             _axisStateMap[channelAndPath.first].value = _actions.at(channelAndPath.second)->getFloat(i).currentState;
 
-            if (_axisStateMap[channelAndPath.first].value != 0) {
-                qCDebug(xr_input_cat, "🐸 Controller %d: %s (%d): %f", i, channelAndPath.second.c_str(), channelAndPath.first,
-                        (double)_axisStateMap[channelAndPath.first].value);
-            }
+            // if (_axisStateMap[channelAndPath.first].value != 0) {
+            //     qCDebug(xr_input_cat, "🐸 Controller %d: %s (%d): %f", i, channelAndPath.second.c_str(), channelAndPath.first,
+            //             (double)_axisStateMap[channelAndPath.first].value);
+            // }
         }
     }
 
@@ -535,7 +535,7 @@ void OpenXrInputPlugin::InputDevice::update(float deltaTime, const controller::I
         for (const auto& channelAndPath : buttonsToUpdate[i]) {
             if (_actions.at(channelAndPath.second)->getBool(i).currentState == XR_TRUE) {
                 _buttonPressedMap.insert(channelAndPath.first);
-                qCDebug(xr_input_cat, "🐸 Controller %d: %s (%d)", i, channelAndPath.second.c_str(), channelAndPath.first);
+                // qCDebug(xr_input_cat, "🐸 Controller %d: %s (%d)", i, channelAndPath.second.c_str(), channelAndPath.first);
             }
         }
     }
