@@ -201,4 +201,6 @@ protected:
 
     QImage getScreenshot(float aspectRatio);
     QImage getSecondaryCameraScreenshot();
+
+    bool _presentOnlyOnce = false;
 };
