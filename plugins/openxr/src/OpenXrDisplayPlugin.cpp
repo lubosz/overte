@@ -7,11 +7,14 @@
 //
 
 #include "OpenXrDisplayPlugin.h"
+#include <qloggingcategory.h>
 
 #include "ViewFrustum.h"
 
+#include <chrono>
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/transform.hpp>
+#include <thread>
 
 Q_DECLARE_LOGGING_CATEGORY(xr_display_cat)
 Q_LOGGING_CATEGORY(xr_display_cat, "openxr.display")
@@ -323,32 +326,38 @@ bool OpenXrDisplayPlugin::beginFrameRender(uint32_t frameIndex) {
         return false;
     }
 
-    // TODO: Since beginFrameRender runs on a different thread than compositeLayers and hmdPresent
-    // we currently begin the openxr frame in compositeLayers and thus have a pose one frame late.
-    _currentRenderFrameInfo = FrameInfo();
-    _currentRenderFrameInfo.renderPose = _context->_lastHeadPose.getMatrix();
-    _currentRenderFrameInfo.presentPose = _currentRenderFrameInfo.renderPose;
-    _frameInfos[frameIndex] = _currentRenderFrameInfo;
-
-    return HmdDisplayPlugin::beginFrameRender(frameIndex);
-}
-
-void OpenXrDisplayPlugin::compositeLayers() {
     if (!_context->_shouldRunFrameCycle) {
-        return;
+        qCWarning(xr_display_cat, "beginFrameRender: Shoudln't run frame cycle. Skipping renderin frame %d", frameIndex);
+        return true;
     }
 
-    // TODO: this should happen in beginFrameRender
+    // Wait for present thread
+    // Actually wait for xrEndFrame to happen.
+    bool haveFrameToSubmit = true;
+    {
+        std::unique_lock<std::mutex> lock(_haveFrameMutex);
+        haveFrameToSubmit = _haveFrameToSubmit;
+    }
+
+    while (haveFrameToSubmit) {
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
+        {
+            std::unique_lock<std::mutex> lock(_haveFrameMutex);
+            haveFrameToSubmit = _haveFrameToSubmit;
+        }
+    }
+
     _lastFrameState = { .type = XR_TYPE_FRAME_STATE };
-    XrFrameWaitInfo frame_wait_info = { .type = XR_TYPE_FRAME_WAIT_INFO };
-    XrResult result = xrWaitFrame(_context->_session, &frame_wait_info, &_lastFrameState);
-    if (!xrCheck(_context->_instance, result, "xrWaitFrame() was not successful, exiting..."))
-        return;
+    XrResult result = xrWaitFrame(_context->_session, nullptr, &_lastFrameState);
+
+    if (!xrCheck(_context->_instance, result, "xrWaitFrame failed"))
+        return false;
+
+    if (!_context->beginFrame())
+        return false;
 
     _context->_lastPredictedDisplayTime = _lastFrameState.predictedDisplayTime;
     _context->_lastPredictedDisplayTimeInitialized = true;
-
-    _context->beginFrame();
 
     std::vector<XrView> eye_views(_viewCount);
     for (uint32_t i = 0; i < _viewCount; i++) {
@@ -366,7 +375,7 @@ void OpenXrDisplayPlugin::compositeLayers() {
 
     result = xrLocateViews(_context->_session, &eyeViewLocateInfo, &eyeViewState, _viewCount, &_viewCount, eye_views.data());
     if (!xrCheck(_context->_instance, result, "Could not locate views"))
-        return;
+        return false;
 
     _lastViewState = { .type = XR_TYPE_VIEW_STATE };
 
@@ -379,14 +388,14 @@ void OpenXrDisplayPlugin::compositeLayers() {
 
     result = xrLocateViews(_context->_session, &viewLocateInfo, &_lastViewState, _viewCount, &_viewCount, _views.data());
     if (!xrCheck(_context->_instance, result, "Could not locate views"))
-        return;
-
-    _viewsInitialized = true;
+        return false;
 
     for (uint32_t i = 0; i < _viewCount; i++) {
         _projectionLayerViews[i].pose = _views[i].pose;
         _projectionLayerViews[i].fov = _views[i].fov;
     }
+
+    _viewsInitialized = true;
 
     XrSpaceLocation headLocation = {
         .type = XR_TYPE_SPACE_LOCATION,
@@ -410,6 +419,27 @@ void OpenXrDisplayPlugin::compositeLayers() {
         }
     }
 
+    _currentRenderFrameInfo = FrameInfo();
+    _currentRenderFrameInfo.renderPose = _context->_lastHeadPose.getMatrix();
+    _currentRenderFrameInfo.presentPose = _currentRenderFrameInfo.renderPose;
+    _frameInfos[frameIndex] = _currentRenderFrameInfo;
+
+    return HmdDisplayPlugin::beginFrameRender(frameIndex);
+}
+
+void OpenXrDisplayPlugin::submitFrame(const gpu::FramePointer& newFrame) {
+    OpenGLDisplayPlugin::submitFrame(newFrame);
+    {
+        std::unique_lock<std::mutex> lock(_haveFrameMutex);
+        _haveFrameToSubmit = true;
+    }
+}
+
+void OpenXrDisplayPlugin::compositeLayers() {
+    if (!_context->_shouldRunFrameCycle) {
+        return;
+    }
+
     if (_lastFrameState.shouldRender) {
         _compositeFramebuffer->setRenderBuffer(0, _compositeSwapChain[_swapChainIndices[0]]);
         HmdDisplayPlugin::compositeLayers();
@@ -418,6 +448,8 @@ void OpenXrDisplayPlugin::compositeLayers() {
 
 void OpenXrDisplayPlugin::hmdPresent() {
     if (!_context->_shouldRunFrameCycle) {
+        qCWarning(xr_display_cat, "hmdPresent: Shoudln't run frame cycle. Skipping renderin frame %d",
+                  _currentFrame->frameIndex);
         return;
     }
 
@@ -453,9 +485,15 @@ void OpenXrDisplayPlugin::hmdPresent() {
             }
         }
     }
+
     endFrame();
 
     _presentRate.increment();
+
+    {
+        std::unique_lock<std::mutex> lock(_haveFrameMutex);
+        _haveFrameToSubmit = false;
+    }
 }
 
 bool OpenXrDisplayPlugin::endFrame() {
@@ -489,8 +527,9 @@ bool OpenXrDisplayPlugin::endFrame() {
     }
 
     XrResult result = xrEndFrame(_context->_session, &info);
-    if (!xrCheck(_context->_instance, result, "failed to end frame!"))
+    if (!xrCheck(_context->_instance, result, "failed to end frame!")) {
         return false;
+    }
 
     return true;
 }

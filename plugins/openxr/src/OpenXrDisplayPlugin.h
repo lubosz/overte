@@ -42,6 +42,7 @@ public:
 
     void resetSensors() override;
     bool beginFrameRender(uint32_t frameIndex) override;
+    void submitFrame(const gpu::FramePointer& newFrame) override;
     void cycleDebugOutput() override { _lockCurrentTexture = !_lockCurrentTexture; }
 
     int getRequiredThreadCount() const override;
@@ -90,4 +91,7 @@ private:
     bool initSwapChains();
     bool initLayers();
     bool endFrame();
+
+    bool _haveFrameToSubmit = false;
+    std::mutex _haveFrameMutex;
 };
