@@ -382,6 +382,11 @@ void OpenXrDisplayPlugin::compositeLayers() {
 
     _viewsInitialized = true;
 
+    for (uint32_t i = 0; i < _viewCount; i++) {
+        _projectionLayerViews[i].pose = _views[i].pose;
+        _projectionLayerViews[i].fov = _views[i].fov;
+    }
+
     XrSpaceLocation headLocation = {
         .type = XR_TYPE_SPACE_LOCATION,
         .pose = XR_INDENTITY_POSE,
@@ -428,9 +433,6 @@ void OpenXrDisplayPlugin::hmdPresent() {
             result = xrWaitSwapchainImage(_swapChains[i], &waitInfo);
             if (!xrCheck(_context->_instance, result, "failed to wait for swapchain image!"))
                 return;
-
-            _projectionLayerViews[i].pose = _views[i].pose;
-            _projectionLayerViews[i].fov = _views[i].fov;
         }
 
         GLuint glTexId = getGLBackend()->getTextureID(_compositeFramebuffer->getRenderBuffer(0));
