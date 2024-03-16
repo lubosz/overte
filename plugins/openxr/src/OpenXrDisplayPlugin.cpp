@@ -364,6 +364,7 @@ bool OpenXrDisplayPlugin::beginFrameRender(uint32_t frameIndex) {
         eye_views[i].type = XR_TYPE_VIEW;
     }
 
+    // TODO: Probably shouldn't call xrLocateViews twice. Use only view space views?
     XrViewLocateInfo eyeViewLocateInfo = {
         .type = XR_TYPE_VIEW_LOCATE_INFO,
         .viewConfigurationType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO,
@@ -376,6 +377,12 @@ bool OpenXrDisplayPlugin::beginFrameRender(uint32_t frameIndex) {
     result = xrLocateViews(_context->_session, &eyeViewLocateInfo, &eyeViewState, _viewCount, &_viewCount, eye_views.data());
     if (!xrCheck(_context->_instance, result, "Could not locate views"))
         return false;
+
+    for (uint32_t i = 0; i < 2; i++) {
+        vec3 eyePosition = xrVecToGlm(eye_views[i].pose.position);
+        quat eyeOrientation = xrQuatToGlm(eye_views[i].pose.orientation);
+        _eyeOffsets[i] = controller::Pose(eyePosition, eyeOrientation).getMatrix();
+    }
 
     _lastViewState = { .type = XR_TYPE_VIEW_STATE };
 
@@ -403,21 +410,9 @@ bool OpenXrDisplayPlugin::beginFrameRender(uint32_t frameIndex) {
     };
     xrLocateSpace(_context->_viewSpace, _context->_stageSpace, _lastFrameState.predictedDisplayTime, &headLocation);
 
-    // TODO: Fix head / eye transformation, it's all kinds of wrong
-    {
-        glm::vec3 headPosition = xrVecToGlm(headLocation.pose.position);
-        glm::quat headOrientation = xrQuatToGlm(headLocation.pose.orientation);
-        _context->_lastHeadPose = controller::Pose(headPosition, headOrientation);
-        // qCDebug(xr_display_cat, "Head position: %s", glm::to_string(headPosition).c_str());
-
-        for (uint32_t i = 0; i < 2; i++) {
-            vec3 eyePosition = xrVecToGlm(eye_views[i].pose.position);
-            quat eyeOrientation = xrQuatToGlm(eye_views[i].pose.orientation);
-            mat4 eyeToHeadMat = controller::Pose(eyePosition, eyeOrientation).getMatrix();
-            _eyeOffsets[i] = eyeToHeadMat;
-            // qCDebug(xr_display_cat, "Eye %d position: %s", i, glm::to_string(eyePosition).c_str());
-        }
-    }
+    glm::vec3 headPosition = xrVecToGlm(headLocation.pose.position);
+    glm::quat headOrientation = xrQuatToGlm(headLocation.pose.orientation);
+    _context->_lastHeadPose = controller::Pose(headPosition, headOrientation);
 
     _currentRenderFrameInfo = FrameInfo();
     _currentRenderFrameInfo.renderPose = _context->_lastHeadPose.getMatrix();
