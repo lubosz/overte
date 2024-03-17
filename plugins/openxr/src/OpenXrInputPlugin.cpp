@@ -467,6 +467,17 @@ void OpenXrInputPlugin::InputDevice::update(float deltaTime, const controller::I
 
     glm::mat4 sensorToAvatar = glm::inverse(inputCalibrationData.avatarMat) * inputCalibrationData.sensorToWorldMat;
 
+    static const glm::quat yFlip = glm::angleAxis(PI, Vectors::UNIT_Y);
+    static const glm::quat quarterX = glm::angleAxis(PI_OVER_TWO, Vectors::UNIT_X);
+    static const glm::quat touchToHand = yFlip * quarterX;
+
+    static const glm::quat leftQuarterZ = glm::angleAxis(-PI_OVER_TWO, Vectors::UNIT_Z);
+    static const glm::quat rightQuarterZ = glm::angleAxis(PI_OVER_TWO, Vectors::UNIT_Z);
+    static const glm::quat eighthX = glm::angleAxis(PI / 4.0f, Vectors::UNIT_X);
+
+    static const glm::quat leftRotationOffset = glm::inverse(leftQuarterZ * eighthX) * touchToHand;
+    static const glm::quat rightRotationOffset = glm::inverse(rightQuarterZ * eighthX) * touchToHand;
+
     for (int i = 0; i < HAND_COUNT; i++) {
         XrSpaceLocation handLocation = _actions.at("/input/grip/pose")->getPose(i);
         bool locationValid = (handLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0;
@@ -474,7 +485,9 @@ void OpenXrInputPlugin::InputDevice::update(float deltaTime, const controller::I
             vec3 translation = xrVecToGlm(handLocation.pose.position);
             quat rotation = xrQuatToGlm(handLocation.pose.orientation);
             auto pose = controller::Pose(translation, rotation);
-            _poseStateMap[i == 0 ? controller::LEFT_HAND : controller::RIGHT_HAND] = pose.transform(sensorToAvatar);
+            glm::mat4 handOffset = i == 0 ? glm::toMat4(leftRotationOffset) : glm::toMat4(rightRotationOffset);
+            _poseStateMap[i == 0 ? controller::LEFT_HAND : controller::RIGHT_HAND] =
+                pose.postTransform(handOffset).transform(sensorToAvatar);
         }
     }
 
