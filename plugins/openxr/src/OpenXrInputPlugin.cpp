@@ -309,14 +309,14 @@ controller::Input::NamedVector OpenXrInputPlugin::InputDevice::getAvailableInput
         makePair(RS, "RS"),
         makePair(RS_TOUCH, "RSTouch"),
         // Face buttons
-        makePair(A, "A"),
+        makePair(RIGHT_PRIMARY_THUMB, "RightPrimaryThumb"),
         makePair(RIGHT_PRIMARY_THUMB_TOUCH, "RightPrimaryThumbTouch"),
-        makePair(B, "B"),
+        makePair(RIGHT_SECONDARY_THUMB, "RightSecondaryThumb"),
         makePair(RIGHT_SECONDARY_THUMB_TOUCH, "RightSecondaryThumbTouch"),
 
-        makePair(X, "X"),
+        makePair(LEFT_PRIMARY_THUMB, "LeftPrimaryThumb"),
         makePair(LEFT_PRIMARY_THUMB_TOUCH, "LeftPrimaryThumbTouch"),
-        makePair(Y, "Y"),
+        makePair(LEFT_SECONDARY_THUMB, "LeftSecondaryThumb"),
         makePair(LEFT_SECONDARY_THUMB_TOUCH, "LeftSecondaryThumbTouch"),
         // Triggers
         makePair(RT, "RT"),
@@ -508,9 +508,9 @@ void OpenXrInputPlugin::InputDevice::update(float deltaTime, const controller::I
     // TODO: Figure out why LEFT_APP_MENU is misssing in StandardButtonChannel
     std::map<controller::StandardButtonChannel, std::string> buttonsToUpdate[2] = {
         {
-            { controller::X, "/input/a/click" },
+            { controller::LEFT_PRIMARY_THUMB, "/input/a/click" },
             { controller::LEFT_PRIMARY_THUMB_TOUCH, "/input/a/touch" },
-            { controller::Y, "/input/b/click" },
+            { controller::LEFT_SECONDARY_THUMB, "/input/b/click" },
             { controller::LEFT_SECONDARY_THUMB_TOUCH, "/input/b/touch" },
             { controller::LT_CLICK, "/input/trigger/click" },
             { controller::LEFT_PRIMARY_INDEX_TOUCH, "/input/trigger/touch" },
@@ -519,9 +519,9 @@ void OpenXrInputPlugin::InputDevice::update(float deltaTime, const controller::I
             //{ LEFT_APP_MENU, "/input/system/click" },
         },
         {
-            { controller::A, "/input/a/click" },
+            { controller::RIGHT_PRIMARY_THUMB, "/input/a/click" },
             { controller::RIGHT_PRIMARY_THUMB_TOUCH, "/input/a/touch" },
-            { controller::B, "/input/b/click" },
+            { controller::RIGHT_SECONDARY_THUMB, "/input/b/click" },
             { controller::RIGHT_SECONDARY_THUMB_TOUCH, "/input/b/touch" },
             { controller::RT_CLICK, "/input/trigger/click" },
             { controller::RIGHT_PRIMARY_INDEX_TOUCH, "/input/trigger/touch" },
