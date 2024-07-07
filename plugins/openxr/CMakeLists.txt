@@ -19,5 +19,4 @@ link_hifi_libraries(shared task gl qml networking controllers ui
 include_hifi_library_headers(octree)
 include_hifi_library_headers(script-engine)
 
-target_compile_options(openxr PRIVATE -Wno-missing-field-initializers -fdiagnostics-color=always)
 #target_openxr()
