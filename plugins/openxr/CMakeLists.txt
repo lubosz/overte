@@ -19,4 +19,5 @@ link_hifi_libraries(shared task gl qml networking controllers ui
 include_hifi_library_headers(octree)
 include_hifi_library_headers(script-engine)
 
+target_compile_features(openxr PRIVATE cxx_std_20)
 #target_openxr()
