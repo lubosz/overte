@@ -30,7 +30,7 @@ const float Item::Status::Value::CYAN = 180.0f;
 const float Item::Status::Value::BLUE = 240.0f;
 const float Item::Status::Value::MAGENTA = 300.0f;
 
-const uint32_t ItemKey::KEY_TAG_BITS_MASK = ((uint32_t) ItemKey::TAG_BITS_ALL) << FIRST_TAG_BIT;
+const uint32_t ItemKey::KEY_TAG_BITS_MASK = ((uint32_t) ItemKey::TAG_BITS_ALL) << TAG_0_BIT;
 
 const uint32_t ItemKey::KEY_LAYER_BITS_MASK = ((uint32_t)ItemKey::LAYER_BITS_ALL) << FIRST_LAYER_BIT;
 

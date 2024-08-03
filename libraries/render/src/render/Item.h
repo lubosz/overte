@@ -106,8 +106,14 @@ public:
         META_CULL_GROUP,  // As a meta item, the culling of my sub items is based solely on my bounding box and my visibility in the view
         SUB_META_CULLED,  // As a sub item of a meta render item set as cull group, need to be set to my culling to the meta render it
 
-        FIRST_TAG_BIT,    // 8 Tags available to organize the items and filter them against
-        LAST_TAG_BIT = FIRST_TAG_BIT + NUM_TAGS,
+        TAG_0_BIT, // 8 Tags available to organize the items and filter them against
+        TAG_1_BIT,
+        TAG_2_BIT,
+        TAG_3_BIT,
+        TAG_4_BIT,
+        TAG_5_BIT,
+        TAG_6_BIT,
+        TAG_7_BIT,
 
         FIRST_LAYER_BIT,  // 8 Exclusive Layers (encoded in 3 bits) available to organize the items in layers, an item can only belong to ONE layer
         LAST_LAYER_BIT = FIRST_LAYER_BIT + NUM_LAYER_BITS,
@@ -123,13 +129,27 @@ public:
     // All the bits touching tag bits sets to true
     const static uint32_t KEY_TAG_BITS_MASK;
     static uint32_t evalTagBitsWithKeyBits(uint8_t tagBits, const uint32_t keyBits) {
-        return (keyBits & ~KEY_TAG_BITS_MASK) | (((uint32_t)tagBits) << FIRST_TAG_BIT);
+        return (keyBits & ~KEY_TAG_BITS_MASK) | (((uint32_t)tagBits) << TAG_0_BIT);
     }
 
     // All the bits touching layer bits sets to true
     const static uint32_t KEY_LAYER_BITS_MASK;
     static uint32_t evalLayerBitsWithKeyBits(uint8_t layer, const uint32_t keyBits) {
         return (keyBits & ~KEY_LAYER_BITS_MASK) | (((uint32_t)layer & LAYER_BITS_ALL) << FIRST_LAYER_BIT);
+    }
+
+    static FlagBit tagToFlagBit(Tag tag) {
+        static const std::map<Tag,FlagBit> TagFlagBits = {
+            {TAG_0, TAG_0_BIT},
+            {TAG_1, TAG_1_BIT},
+            {TAG_2, TAG_2_BIT},
+            {TAG_3, TAG_3_BIT},
+            {TAG_4, TAG_4_BIT},
+            {TAG_5, TAG_5_BIT},
+            {TAG_6, TAG_6_BIT},
+            {TAG_7, TAG_7_BIT},
+        };
+        return TagFlagBits.at(tag);
     }
 
     // The key is the Flags
@@ -167,7 +187,7 @@ public:
         Builder& withSubMetaCulled() { _flags.set(SUB_META_CULLED); return (*this); }
         Builder& withoutSubMetaCulled() { _flags.reset(SUB_META_CULLED); return (*this); }
 
-        Builder& withTag(Tag tag) { _flags.set(FIRST_TAG_BIT + tag); return (*this); }
+        Builder& withTag(Tag tag) { _flags.set(tagToFlagBit(tag)); return (*this); }
         // Set ALL the tags in one call using the Tag bits
         Builder& withTagBits(uint8_t tagBits) { _flags = evalTagBitsWithKeyBits(tagBits, _flags.to_ulong()); return (*this); }
 
@@ -212,8 +232,8 @@ public:
     bool isSubMetaCulled() const { return _flags[SUB_META_CULLED]; }
     void setSubMetaCulled(bool metaCulled) { (metaCulled ? _flags.set(SUB_META_CULLED) : _flags.reset(SUB_META_CULLED)); }
 
-    bool isTag(Tag tag) const { return _flags[FIRST_TAG_BIT + tag]; }
-    uint8_t getTagBits() const { return ((_flags.to_ulong() & KEY_TAG_BITS_MASK) >> FIRST_TAG_BIT); }
+    bool isTag(Tag tag) const { return _flags[tagToFlagBit(tag)]; }
+    uint8_t getTagBits() const { return ((_flags.to_ulong() & KEY_TAG_BITS_MASK) >> TAG_0_BIT); }
 
     uint8_t getLayer() const { return ((_flags.to_ulong() & KEY_LAYER_BITS_MASK) >> FIRST_LAYER_BIT); }
     bool isLayer(uint8_t layer) const { return getLayer() == layer; }
@@ -285,8 +305,8 @@ public:
         Builder& withoutSubMetaCulled() { _value.reset(ItemKey::SUB_META_CULLED); _mask.set(ItemKey::SUB_META_CULLED); return (*this); }
         Builder& withSubMetaCulled() { _value.set(ItemKey::SUB_META_CULLED);  _mask.set(ItemKey::SUB_META_CULLED); return (*this); }
 
-        Builder& withoutTag(ItemKey::Tag tagIndex)    { _value.reset(ItemKey::FIRST_TAG_BIT + tagIndex);  _mask.set(ItemKey::FIRST_TAG_BIT + tagIndex); return (*this); }
-        Builder& withTag(ItemKey::Tag tagIndex)       { _value.set(ItemKey::FIRST_TAG_BIT + tagIndex);  _mask.set(ItemKey::FIRST_TAG_BIT + tagIndex); return (*this); }
+        Builder& withoutTag(ItemKey::Tag tagIndex)    { _value.reset(ItemKey::tagToFlagBit(tagIndex));  _mask.set(ItemKey::tagToFlagBit(tagIndex)); return (*this); }
+        Builder& withTag(ItemKey::Tag tagIndex)       { _value.set(ItemKey::tagToFlagBit(tagIndex));  _mask.set(ItemKey::tagToFlagBit(tagIndex)); return (*this); }
         // Set ALL the tags in one call using the Tag bits and the Tag bits touched
         Builder& withTagBits(uint8_t tagBits, uint8_t tagMask) { _value = ItemKey::evalTagBitsWithKeyBits(tagBits, _value.to_ulong()); _mask = ItemKey::evalTagBitsWithKeyBits(tagMask, _mask.to_ulong()); return (*this); }
 
