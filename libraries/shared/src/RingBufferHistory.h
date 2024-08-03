@@ -103,8 +103,11 @@ private:
     std::vector<T> _buffer;
 
 public:
-    class Iterator : public std::iterator < std::random_access_iterator_tag, T > {
+    class Iterator {
     public:
+        using iterator_category = std::random_access_iterator_tag;
+        using value_type = T;
+
         Iterator(T* bufferFirst, T* bufferLast, T* newestAt, T* at)
             : _bufferFirst(bufferFirst),
             _bufferLast(bufferLast),
