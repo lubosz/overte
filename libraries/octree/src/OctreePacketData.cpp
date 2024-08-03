@@ -16,6 +16,7 @@
 
 #include "OctreeLogging.h"
 #include "NumericalConstants.h"
+#include <glm/fwd.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 bool OctreePacketData::_debug = false;
@@ -812,9 +813,10 @@ int OctreePacketData::unpackDataFromBytes(const unsigned char* dataBytes, QByteA
 }
 
 int OctreePacketData::unpackDataFromBytes(const unsigned char* dataBytes, AACube& result) {
-    aaCubeData cube;
-    memcpy(&cube, dataBytes, sizeof(aaCubeData));
-    result = AACube(cube.corner, cube.scale);
+    const float* dataFloats = reinterpret_cast<const float*>(dataBytes);
+    glm::vec3 corner = glm::vec3(dataFloats[0], dataFloats[1], dataFloats[2]);
+    float scale = dataFloats[3];
+    result = AACube(corner, scale);
     return sizeof(aaCubeData);
 }
 
