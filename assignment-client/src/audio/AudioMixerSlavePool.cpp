@@ -76,7 +76,7 @@ void AudioMixerSlavePool::processPackets(ConstIter begin, ConstIter end) {
 
 void AudioMixerSlavePool::mix(ConstIter begin, ConstIter end, unsigned int frame, int numToRetain) {
     _function = &AudioMixerSlave::mix;
-    _configure = [=](AudioMixerSlave& slave) {
+    _configure = [=, this](AudioMixerSlave& slave) {
         slave.configureMix(_begin, _end, frame, numToRetain);
     };
 

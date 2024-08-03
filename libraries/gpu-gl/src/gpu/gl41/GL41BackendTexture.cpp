@@ -620,7 +620,7 @@ void GL41VariableAllocationTexture::populateTransferQueue(TransferQueue& pending
         }
 
         // queue up the sampler and populated mip change for after the transfer has completed
-        pendingTransfers.emplace(new TransferJob(sourceMip, [=] {
+        pendingTransfers.emplace(new TransferJob(sourceMip, [this, sourceMip] {
             _populatedMip = sourceMip;
             incrementPopulatedSize(_gpuObject.evalMipSize(sourceMip));
             sanityCheck();

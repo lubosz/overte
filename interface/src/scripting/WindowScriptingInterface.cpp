@@ -131,7 +131,7 @@ ScriptValue WindowScriptingInterface::prompt(const QString& message, const QStri
 void WindowScriptingInterface::promptAsync(const QString& message, const QString& defaultText) {
     bool ok = false;
     ModalDialogListener* dlg = OffscreenUi::getTextAsync(nullptr, "", message, QLineEdit::Normal, defaultText, &ok);
-    connect(dlg, &ModalDialogListener::response, this, [=] (QVariant result) {
+    connect(dlg, &ModalDialogListener::response, this, [this, dlg] (QVariant result) {
         disconnect(dlg, &ModalDialogListener::response, this, nullptr);
         emit promptTextChanged(result.toString());
     });
@@ -252,7 +252,7 @@ void WindowScriptingInterface::browseDirAsync(const QString& title, const QStrin
     path = fixupPathForMac(directory);
 #endif
     ModalDialogListener* dlg = OffscreenUi::getExistingDirectoryAsync(nullptr, title, path);
-    connect(dlg, &ModalDialogListener::response, this, [=] (QVariant response) {
+    connect(dlg, &ModalDialogListener::response, this, [this, dlg] (QVariant response) {
         const QString& result = response.toString();
         disconnect(dlg, &ModalDialogListener::response, this, nullptr);
         if (!result.isEmpty()) {
@@ -298,7 +298,7 @@ void WindowScriptingInterface::browseAsync(const QString& title, const QString& 
     path = fixupPathForMac(directory);
 #endif
     ModalDialogListener* dlg = OffscreenUi::getOpenFileNameAsync(nullptr, title, path, nameFilter);
-    connect(dlg, &ModalDialogListener::response, this, [=] (QVariant response) {
+    connect(dlg, &ModalDialogListener::response, this, [this, dlg] (QVariant response) {
         const QString& result = response.toString();
         disconnect(dlg, &ModalDialogListener::response, this, nullptr);
         if (!result.isEmpty()) {
@@ -346,7 +346,7 @@ void WindowScriptingInterface::saveAsync(const QString& title, const QString& di
     path = fixupPathForMac(directory);
 #endif
     ModalDialogListener* dlg = OffscreenUi::getSaveFileNameAsync(nullptr, title, path, nameFilter);
-    connect(dlg, &ModalDialogListener::response, this, [=] (QVariant response) {
+    connect(dlg, &ModalDialogListener::response, this, [this, dlg] (QVariant response) {
         const QString& result = response.toString();
         disconnect(dlg, &ModalDialogListener::response, this, nullptr);
         if (!result.isEmpty()) {
@@ -401,7 +401,7 @@ void WindowScriptingInterface::browseAssetsAsync(const QString& title, const QSt
     }
 
     ModalDialogListener* dlg = OffscreenUi::getOpenAssetNameAsync(nullptr, title, path, nameFilter);
-    connect(dlg, &ModalDialogListener::response, this, [=] (QVariant response) {
+    connect(dlg, &ModalDialogListener::response, this, [this, dlg] (QVariant response) {
         const QString& result = response.toString();
         disconnect(dlg, &ModalDialogListener::response, this, nullptr);
         if (!result.isEmpty()) {

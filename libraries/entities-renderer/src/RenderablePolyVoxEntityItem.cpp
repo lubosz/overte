@@ -1028,7 +1028,7 @@ void RenderablePolyVoxEntityItem::uncompressVolumeData() {
         voxelData = _voxelData;
     });
 
-    QtConcurrent::run([=] {
+    QtConcurrent::run([=, this] {
         QDataStream reader(voxelData);
         quint16 voxelXSize, voxelYSize, voxelZSize;
         reader >> voxelXSize;

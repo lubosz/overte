@@ -53,7 +53,7 @@ AvatarPackager::AvatarPackager() {
 }
 
 bool AvatarPackager::open() {
-    const auto packageModelDialogCreated = [=](QQmlContext* context, QObject* newObject) {
+    const auto packageModelDialogCreated = [this](QQmlContext* context, QObject* newObject) {
         context->setContextProperty("AvatarPackagerCore", this);
     };
 

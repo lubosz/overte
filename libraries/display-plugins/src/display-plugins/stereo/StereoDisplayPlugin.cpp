@@ -67,7 +67,7 @@ bool StereoDisplayPlugin::internalActivate() {
         }
         const uint32_t screenIndex = i;
         _container->addMenuItem(PluginType::DISPLAY_PLUGIN, MENU_PATH(), name,
-            [=](bool clicked) { updateScreen(screenIndex); }, true, checked, "Screens");
+            [this, screenIndex](bool clicked) { updateScreen(screenIndex); }, true, checked, "Screens");
     }
 
     _container->removeMenu(FRAMERATE);

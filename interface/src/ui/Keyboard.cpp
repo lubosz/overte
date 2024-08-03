@@ -743,7 +743,7 @@ void Keyboard::loadKeyboardFile(const QString& keyboardFile) {
     }
 
 
-    connect(request, &ResourceRequest::finished, this, [=]() {
+    connect(request, &ResourceRequest::finished, this, [this, request]() {
         if (request->getResult() != ResourceRequest::Success) {
             qCWarning(interfaceapp) << "Keyboard file failed to download";
             return;

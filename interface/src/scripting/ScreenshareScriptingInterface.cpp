@@ -257,7 +257,7 @@ void ScreenshareScriptingInterface::handleSuccessfulScreenshareInfoGet(QNetworkR
         arguments << "--sessionID=" + _sessionID << " ";
 
         connect(_screenshareProcess.get(), QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            [=](int exitCode, QProcess::ExitStatus exitStatus) {
+            [this](int exitCode, QProcess::ExitStatus exitStatus) {
                 stopScreenshare();
                 emit screenshareProcessTerminated();
             });

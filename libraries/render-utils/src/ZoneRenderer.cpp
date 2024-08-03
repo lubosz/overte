@@ -150,7 +150,7 @@ void DebugZoneLighting::run(const render::RenderContextPointer& context, const I
         }
     }
 
-    gpu::doInBatch("DebugZoneLighting::run", args->_context, [=](gpu::Batch& batch) {
+    gpu::doInBatch("DebugZoneLighting::run", args->_context, [=, this](gpu::Batch& batch) {
 
         batch.setViewportTransform(args->_viewport);
         auto viewFrustum = args->getViewFrustum();
