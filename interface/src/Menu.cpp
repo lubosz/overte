@@ -106,7 +106,7 @@ Menu::Menu() {
     });
 
     // File > Quit
-    addActionToQMenuAndActionHash(fileMenu, MenuOption::Quit, Qt::CTRL | Qt::Key_Q, qApp, SLOT(quit()), QAction::QuitRole);
+    addActionToQMenuAndActionHash(fileMenu, MenuOption::Quit, Qt::Key_Control | Qt::Key_Q, qApp, SLOT(quit()), QAction::QuitRole);
 
 
     // Edit menu ----------------------------------
@@ -143,7 +143,7 @@ Menu::Menu() {
     editMenu->addSeparator();
 
     // Edit > Running Scripts
-    auto action = addActionToQMenuAndActionHash(editMenu, MenuOption::RunningScripts, Qt::CTRL | Qt::Key_J);
+    auto action = addActionToQMenuAndActionHash(editMenu, MenuOption::RunningScripts, Qt::Key_Control | Qt::Key_J);
     connect(action, &QAction::triggered, [] {
         if (!qApp->getLoginDialogPoppedUp()) {
             static const QUrl widgetUrl("hifi/dialogs/RunningScripts.qml");
@@ -157,7 +157,7 @@ Menu::Menu() {
 
     // Edit > Asset Browser
     auto assetServerAction = addActionToQMenuAndActionHash(editMenu, MenuOption::AssetServer,
-                                                           Qt::CTRL | Qt::SHIFT | Qt::Key_A,
+                                                           Qt::Key_Control | Qt::Key_Shift | Qt::Key_A,
                                                            qApp, SLOT(showAssetServerWidget()));
     {
         auto nodeList = DependencyManager::get<NodeList>();
@@ -253,7 +253,7 @@ Menu::Menu() {
     MenuWrapper* settingsMenu = addMenu("Settings");
 
     // Settings > General...
-    action = addActionToQMenuAndActionHash(settingsMenu, MenuOption::Preferences, Qt::CTRL | Qt::Key_G, nullptr, nullptr);
+    action = addActionToQMenuAndActionHash(settingsMenu, MenuOption::Preferences, Qt::Key_Control | Qt::Key_G, nullptr, nullptr);
     connect(action, &QAction::triggered, [] {
         if (!qApp->getLoginDialogPoppedUp()) {
             qApp->showDialog(QString("hifi/dialogs/GeneralPreferencesDialog.qml"),
@@ -349,7 +349,7 @@ Menu::Menu() {
     MenuWrapper* scriptingOptionsMenu = developerMenu->addMenu("Scripting");
 
     // Developer > Scripting > Console...
-    addActionToQMenuAndActionHash(scriptingOptionsMenu, MenuOption::Console, Qt::CTRL | Qt::ALT | Qt::Key_J,
+    addActionToQMenuAndActionHash(scriptingOptionsMenu, MenuOption::Console, Qt::Key_Control | Qt::Key_Alt | Qt::Key_J,
                                   DependencyManager::get<StandAloneJSConsole>().data(),
                                   SLOT(toggleConsole()),
                                   QAction::NoRole,
