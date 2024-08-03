@@ -211,11 +211,6 @@ T toNormalizedDeviceScale(const T& value, const T& size) {
 #define PITCH(euler) euler.x
 #define ROLL(euler) euler.z
 
-// float - linear interpolate
-inline float lerp(float x, float y, float a) {
-    return x * (1.0f - a) + (y * a);
-}
-
 // vec2 lerp - linear interpolate
 template<typename T, glm::precision P>
 glm::tvec2<T, P> lerp(const glm::tvec2<T, P>& x, const glm::tvec2<T, P>& y, T a) {
