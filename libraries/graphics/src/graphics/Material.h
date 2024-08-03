@@ -82,11 +82,15 @@ public:
         NUM_MAP_CHANNELS,
     };
 
+
+
     enum OpacityMapMode {
         OPACITY_MAP_OPAQUE = 0,
         OPACITY_MAP_MASK,
         OPACITY_MAP_BLEND,
     };
+
+    static FlagBit getFlagBitForChannel(MapChannel channel);
     static std::string getOpacityMapModeName(OpacityMapMode mode);
     // find the enum value from a string, return true if match found
     static bool getOpacityMapModeFromName(const std::string& modeName, OpacityMapMode& mode);
@@ -215,8 +219,8 @@ public:
     void setScatteringMap(bool value) { _flags.set(SCATTERING_MAP_BIT, value); }
     bool isScatteringMap() const { return _flags[SCATTERING_MAP_BIT]; }
 
-    void setMapChannel(MapChannel channel, bool value) { _flags.set(EMISSIVE_MAP_BIT + channel, value); }
-    bool isMapChannel(MapChannel channel) const { return _flags[EMISSIVE_MAP_BIT + channel]; }
+    void setMapChannel(MapChannel channel, bool value) { _flags.set(getFlagBitForChannel(channel), value); }
+    bool isMapChannel(MapChannel channel) const { return _flags[getFlagBitForChannel(channel)]; }
 
 
     // Translucency and Opacity Heuristics are combining several flags:

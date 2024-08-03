@@ -30,6 +30,22 @@ const MaterialKey::OpacityMapMode Material::DEFAULT_OPACITY_MAP_MODE{ MaterialKe
 const float Material::DEFAULT_OPACITY_CUTOFF { 0.5f };
 const MaterialKey::CullFaceMode Material::DEFAULT_CULL_FACE_MODE { MaterialKey::CULL_BACK };
 
+
+MaterialKey::FlagBit MaterialKey::getFlagBitForChannel(MapChannel channel) {
+    // To retrieve the FlagBit from a MapChannel
+    static const std::map<MapChannel,FlagBit> MapChannelFlagBits = {
+        {EMISSIVE_MAP, EMISSIVE_MAP_BIT},
+        {ALBEDO_MAP, ALBEDO_MAP_BIT},
+        {METALLIC_MAP, METALLIC_MAP_BIT},
+        {ROUGHNESS_MAP, ROUGHNESS_MAP_BIT},
+        {NORMAL_MAP, NORMAL_MAP_BIT},
+        {OCCLUSION_MAP, OCCLUSION_MAP_BIT},
+        {LIGHT_MAP, LIGHT_MAP_BIT},
+        {SCATTERING_MAP, SCATTERING_MAP_BIT},
+    };
+    return MapChannelFlagBits.at(channel);
+}
+
 std::string MaterialKey::getOpacityMapModeName(OpacityMapMode mode) {
     const std::string names[3] = { "OPACITY_MAP_OPAQUE", "OPACITY_MAP_MASK", "OPACITY_MAP_BLEND" };
     return names[mode];
