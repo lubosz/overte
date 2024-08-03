@@ -77,7 +77,6 @@ void BlurParams::setFilterGaussianTaps(int numHalfTaps, float sigma) {
     assert(numTaps <= BLUR_MAX_NUM_TAPS);
     assert(sigma > 0.0f);
     const float inverseTwoSigmaSquared = float(0.5 / double(sigma*sigma));
-    float totalWeight = 1.0f;
     float weight;
     float offset;
     int i;
@@ -93,7 +92,6 @@ void BlurParams::setFilterGaussianTaps(int numHalfTaps, float sigma) {
         params.filterTaps[i + 1].y = weight;
         params.filterTaps[i + 1 + numHalfTaps].x = -offset;
         params.filterTaps[i + 1 + numHalfTaps].y = weight;
-        totalWeight += 2 * weight;
     }
 
     // Tap weights will be normalized in shader because side cases on edges of screen
