@@ -91,7 +91,7 @@ public:
 
     // given the spline parameter (0..1) output the arcLength of the spline up to that point.
     float arcLength(float t) const {
-        float index = t * NUM_SUBDIVISIONS;
+        float index = t * static_cast<float>(NUM_SUBDIVISIONS);
         int prevIndex = std::min(std::max(0, (int)glm::floor(index)), (int)NUM_SUBDIVISIONS);
         int nextIndex = std::min(std::max(0, (int)glm::ceil(index)), (int)NUM_SUBDIVISIONS);
         float alpha = glm::fract(index);
@@ -109,7 +109,7 @@ public:
         }
         int prevIndex = std::min(std::max(0, nextIndex - 1), (int)NUM_SUBDIVISIONS);
         float alpha = glm::clamp((s - _values[prevIndex]) / (_values[nextIndex] - _values[prevIndex]), 0.0f, 1.0f);
-        const float DELTA = 1.0f / NUM_SUBDIVISIONS;
+        const float DELTA = 1.0f / static_cast<float>(NUM_SUBDIVISIONS);
         return lerp(prevIndex * DELTA, nextIndex * DELTA, alpha);
     }
 protected:
@@ -117,7 +117,7 @@ protected:
 
     void initValues() {
         // initialize _values with the accumulated arcLength along the spline.
-        const float DELTA = 1.0f / NUM_SUBDIVISIONS;
+        const float DELTA = 1.0f / static_cast<float>(NUM_SUBDIVISIONS);
         float alpha = 0.0f;
         float accum = 0.0f;
         _values[0] = 0.0f;
