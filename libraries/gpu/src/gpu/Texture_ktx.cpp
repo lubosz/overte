@@ -74,7 +74,7 @@ struct GPUKTXPayload {
             return false;
         }
 
-        memcpy(&_samplerDesc, data, sizeof(Sampler::Desc));
+        memcpy(reinterpret_cast<void*>(&_samplerDesc), data, sizeof(Sampler::Desc));
         data += sizeof(Sampler::Desc);
 
         // We can't copy the bitset in Texture::Usage in a crossplateform manner
@@ -88,7 +88,7 @@ struct GPUKTXPayload {
         data += sizeof(TextureUsageType);
 
         if (version >= 2) {
-            memcpy(&_originalSize, data, sizeof(glm::ivec2));
+            memcpy(reinterpret_cast<void*>(&_originalSize), data, sizeof(glm::ivec2));
             data += sizeof(glm::ivec2);
         }
 
@@ -144,7 +144,7 @@ struct IrradianceKTXPayload {
         }
         data += sizeof(Version);
 
-        memcpy(&_irradianceSH, data, sizeof(SphericalHarmonics));
+        memcpy(reinterpret_cast<void*>(&_irradianceSH), data, sizeof(SphericalHarmonics));
 
         return true;
     }
